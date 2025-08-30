@@ -126,7 +126,7 @@ CMD ["python", "/app/pytorch_test.py"]
 
 # Labels
 LABEL maintainer="Phygrid"
-LABEL version="v1.0.7"
+LABEL version="v1.0.8"
 LABEL description="PyTorch base image for deep learning inference with GPU support"
 LABEL inference.engine="pytorch"
 LABEL inference.runtime="pytorch-2.8.0"
