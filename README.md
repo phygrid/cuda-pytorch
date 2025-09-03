@@ -26,7 +26,7 @@ Built on `phygrid/cuda-base:latest` which includes:
 - Common system dependencies and security features
 
 ### PyTorch Ecosystem
-- **PyTorch**: Version 2.8.0 with CUDA 12.8 (AMD64), PyTorch 2.6.0 with CUDA 12.6 (ARM64 Jetson)
+- **PyTorch**: Version 2.8.0 with CUDA 12.8 (AMD64), PyTorch 2.5.0 with CUDA (ARM64 Jetson JetPack 6.1)
 - **Transformers**: Hugging Face ecosystem (v4.36.2) with accelerate
 - **Model Optimization**: bitsandbytes (AMD64), optimum for efficient inference
 - **Hugging Face Hub**: Model management and safetensors support
