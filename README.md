@@ -5,7 +5,7 @@
 [![Build Status](https://github.com/phygrid/cuda-pytorch/workflows/Build%20and%20Deploy%20Docker%20Image/badge.svg)](https://github.com/phygrid/cuda-pytorch/actions)
 [![License](https://img.shields.io/github/license/phygrid/cuda-pytorch)](LICENSE)
 
-A multi-architecture Docker image optimized for PyTorch deep learning inference with GPU acceleration, built on the Phygrid CUDA base image and featuring RTX 5090 optimizations.
+A multi-architecture Docker image optimized for PyTorch deep learning inference with GPU acceleration, supporting both Intel/AMD x64 systems and ARM64 NVIDIA Jetson devices. Built on the Phygrid CUDA base image with optimizations for NVIDIA Blackwell and earlier architectures.
 
 ## 🚀 Quick Start
 
@@ -26,9 +26,9 @@ Built on `phygrid/cuda-base:latest` which includes:
 - Common system dependencies and security features
 
 ### PyTorch Ecosystem
-- **PyTorch 2.8.0**: Latest version with CUDA 12.8 support
+- **PyTorch**: Version 2.8.0 (AMD64) / 2.5.0 (ARM64 Jetson) with GPU support
 - **Transformers**: Hugging Face ecosystem (v4.36.2) with accelerate
-- **Model Optimization**: bitsandbytes, optimum for efficient inference
+- **Model Optimization**: bitsandbytes (AMD64), optimum for efficient inference
 - **Hugging Face Hub**: Model management and safetensors support
 
 ### Computer Vision & Audio
@@ -36,10 +36,11 @@ Built on `phygrid/cuda-base:latest` which includes:
 - **Audio**: librosa, soundfile, torchaudio for audio processing
 - **Scientific**: scipy, scikit-learn, matplotlib, seaborn
 
-### RTX 5090 Optimizations
-- **Memory Management**: Optimized CUDA allocation settings
-- **Architecture Support**: CUDA compute capabilities 8.0-9.0
-- **Environment Tuning**: Pre-configured for high-end GPU performance
+### GPU Optimizations
+- **Memory Management**: Optimized CUDA allocation settings for both desktop and Jetson
+- **Architecture Support**: Desktop GPUs (8.0-9.0), Jetson devices (5.3-8.7)
+- **Environment Tuning**: Pre-configured for both Intel/AMD and ARM64 performance
+- **Mixed Precision**: Automatic mixed precision support for efficient inference
 
 ## 🐳 Docker Hub
 
@@ -82,7 +83,7 @@ docker run -it --rm \
 
 ### Production Deployment
 ```bash
-# Run PyTorch inference service
+# Intel/AMD systems with GPU support
 docker run -d \
   --name pytorch-inference \
   --gpus all \
@@ -90,6 +91,17 @@ docker run -d \
   -v /data/models:/app/pytorch_models \
   -v /data/cache:/app/cache \
   -e PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512 \
+  phygrid/cuda-pytorch:latest
+
+# NVIDIA Jetson devices  
+docker run -d \
+  --name pytorch-inference \
+  --runtime nvidia \
+  --gpus all \
+  -p 8000:8000 \
+  -v /data/models:/app/pytorch_models \
+  -v /data/cache:/app/cache \
+  -e PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128 \
   phygrid/cuda-pytorch:latest
 ```
 
@@ -162,12 +174,14 @@ The image includes a comprehensive health check:
 docker run --rm phygrid/cuda-pytorch:latest python /app/pytorch_test.py
 
 # Expected output (with GPU):
-# PyTorch version: 2.8.0
+# PyTorch version: 2.8.0 (AMD64) / 2.5.0 (ARM64)
 # Transformers version: 4.36.2
-# ✅ CUDA available: NVIDIA GeForce RTX 5090
-#    CUDA version: 12.8
-#    GPU memory: 32.0 GB
-# ✅ Basic tensor operations: OK
+# ✅ CUDA available: NVIDIA GeForce RTX 4090 / Tegra Orin
+#    CUDA version: 12.6
+#    GPU memory: 24.0 GB / 8.0 GB
+# 🎯 Detected NVIDIA Jetson device (ARM64 only)
+#    GPU compute capability: 8.7
+# ✅ GPU tensor operations with mixed precision: OK
 # PyTorch setup: OK
 ```
 
@@ -178,7 +192,7 @@ docker run --rm phygrid/cuda-pytorch:latest python /app/pytorch_test.py
 |----------|---------|-------------|
 | `PYTORCH_CUDA_ALLOC_CONF` | `max_split_size_mb:128` | CUDA memory allocation |
 | `CUDA_LAUNCH_BLOCKING` | `0` | Enable for debugging |
-| `TORCH_CUDA_ARCH_LIST` | `8.0;8.6;8.9;9.0` | Supported compute capabilities |
+| `TORCH_CUDA_ARCH_LIST` | `8.0;8.6;8.9;9.0` (AMD64) / `5.3;6.2;7.2;8.7` (ARM64) | Supported compute capabilities |
 | `TRANSFORMERS_CACHE` | `/app/cache/transformers` | Hugging Face cache |
 | `HF_HOME` | `/app/cache/huggingface` | HF Hub cache |
 | `TOKENIZERS_PARALLELISM` | `true` | Enable tokenizer parallelism |
@@ -195,16 +209,18 @@ docker run --rm phygrid/cuda-pytorch:latest python /app/pytorch_test.py
 
 ## 🔧 Performance Tuning
 
-### RTX 5090 Optimizations
+### GPU-Specific Optimizations
 ```bash
-# Enable optimal memory allocation
+# High-end desktop GPUs (RTX 4090, RTX 4080, etc.)
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
-
-# Enable TensorFloat-32 for faster training
 export TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 
-# Configure for maximum performance
+# NVIDIA Jetson devices (Orin, Xavier, Nano)
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
 export CUDA_LAUNCH_BLOCKING=0
+
+# Enable TensorFloat-32 for faster training (desktop only)
+export TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1
 ```
 
 ### Memory Management
@@ -279,11 +295,13 @@ LABEL cuda.version="12.8"
 
 ## 📈 Metrics
 
-- **Image size**: ~4.5GB compressed
+- **Image size**: ~4.5GB compressed (AMD64), ~3.8GB (ARM64)
 - **Build time**: ~15-25 minutes (with cache)
-- **Architectures**: AMD64, ARM64
-- **PyTorch version**: 2.8.0
-- **CUDA support**: 12.8
+- **Architectures**: AMD64 (Intel/AMD), ARM64 (NVIDIA Jetson)
+- **PyTorch version**: 2.8.0 (AMD64) / 2.5.0 (ARM64 with CUDA)
+- **CUDA support**: 12.6.2 (ARM64 Jetson support)
+- **GPU support**: NVIDIA Blackwell and earlier architectures
+- **Jetson support**: Orin (8.7), Xavier (7.2), Nano (5.3)
 - **Base image**: phygrid/cuda-base:latest
 
 ## 🎯 Use Cases
