@@ -17,9 +17,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         echo "Installing PyTorch for x64 with CUDA 12.8 support..."; \
         python3 -m pip install --no-cache-dir torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu128; \
     elif [ "$TARGETARCH" = "arm64" ]; then \
-        # ARM64 - Install CPU-only PyTorch (CUDA wheels not available for ARM64)
-        echo "Installing PyTorch 2.8.0 for ARM64 (CPU-only - CUDA not available for ARM64)..."; \
-        python3 -m pip install --no-cache-dir torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cpu; \
+        # ARM64 - Install PyTorch with CUDA for Jetson (JetPack 6.2 + CUDA 12.6)
+        echo "Installing PyTorch with CUDA for ARM64 Jetson (JetPack 6.2)..."; \
+        python3 -m pip install --no-cache-dir torch torchvision torchaudio --index-url https://pypi.jetson-ai-lab.dev/jp6/cu126/; \
     else \
         # Fallback to CPU version
         echo "Installing PyTorch fallback (CPU only)..."; \

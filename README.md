@@ -26,7 +26,7 @@ Built on `phygrid/cuda-base:latest` which includes:
 - Common system dependencies and security features
 
 ### PyTorch Ecosystem
-- **PyTorch**: Version 2.8.0 with CUDA 12.8 support (AMD64), CPU-only (ARM64)
+- **PyTorch**: Version 2.8.0 with CUDA 12.8 (AMD64), PyTorch 2.6.0 with CUDA 12.6 (ARM64 Jetson)
 - **Transformers**: Hugging Face ecosystem (v4.36.2) with accelerate
 - **Model Optimization**: bitsandbytes (AMD64), optimum for efficient inference
 - **Hugging Face Hub**: Model management and safetensors support
@@ -176,12 +176,12 @@ docker run --rm phygrid/cuda-pytorch:latest python /app/pytorch_test.py
 # Expected output (with GPU):
 # PyTorch version: 2.8.0
 # Transformers version: 4.36.2
-# ✅ CUDA available: NVIDIA GPU detected (AMD64 only)
-#    CUDA version: 12.8
+# ✅ CUDA available: NVIDIA GPU detected
+#    CUDA version: 12.8 (AMD64) / 12.6 (ARM64 Jetson)
 #    GPU memory: 24.0 GB (varies by device)
-# ℹ️  CUDA not available, using CPU (ARM64 - no CUDA wheels available)
-# ✅ GPU tensor operations with mixed precision: OK (AMD64)
-# ✅ CPU tensor operations: OK (ARM64)
+# 🎯 Detected NVIDIA Jetson device (ARM64 Jetson only)
+# ✅ GPU tensor operations with mixed precision: OK
+# PyTorch setup: OK
 # PyTorch setup: OK
 ```
 
